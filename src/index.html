@@ -2,13 +2,294 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Hnpwa</title>
+  <title>Youtube Channel </title>
   <base href="/">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="manifest" href="manifest.json">
+   <!-- Compiled and minified CSS -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+  <style>
+       #btn-authorized , #btn-authorizedOff{
+      display: none;
+    }
+    select {
+      display: block;
+    }
+  </style>
+  <meta name="theme-color" content="#1976d2">
 </head>
 <body>
-  <app-root></app-root>
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+   
+  <script async defer src="https://apis.google.com/js/api.js" 
+  onload="this.onload=function(){}; handleClientLoad()" 
+  onreadystatechange="if (this.readyState === 'complete') this.onload()"></script>
+
+  <nav class="blue">
+    <div class="nav-wrapper">
+      <div class="container">
+        <a href="#!" class="brand-logo">Youtube Channel Data</a>
+      </div>
+    </div>
+  </nav>
+  <br>
+  <section>
+    <div class="container">
+      <p>Log In With Google</p>
+      <button class="btn red" id="btn-authorized">Log In</button>
+      <button class="btn red" id="btn-authorizedOff">Log Out</button>
+      <br>
+      <div id="content">
+        <div class="row">
+            <app-root style="display: none"></app-root>
+          
+            <div class="col s6">
+               
+              <form id=channel-form>
+              
+             
+              <div class="select-field">
+              
+                  <select id="sourceSelector"></select>
+                
+              </div>
+            </form>
+          </div>
+          <div class="col s6" id="channel-data">
+
+          </div>
+        </div>
+        <div class="row" id="video-container">
+
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <noscript>
+    <p>
+      Sorry, Javascript must be enabled to use this app!!
+    </p>
+  </noscript>
+
+
+  <script type="text/javascript">
+
+    const authorizeButton = document.getElementById('btn-authorized');
+    const signoutButton = document.getElementById('btn-authorizedOff');
+    const content = document.getElementById('content');
+    const channelform = document.getElementById('channel-form');
+    //const channelInput = document.getElementById('channel-input');
+    const channelData = document.getElementById('channel-data');
+    const videoContainer = document.getElementById('video-container');
+    const sourceSelector = document.getElementById('sourceSelector');
+
+    // Client ID and API key from the Developer Console
+    const CLIENT_ID = '528582006686-efaf6ki6a2v9a6v9fsujv1uj2u1gj5l6.apps.googleusercontent.com';
+
+    // Array of API discovery doc URLs for APIs used by the quickstart
+    const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest"];
+
+    // Authorization scopes required by the API. If using multiple scopes,
+    // separated them with spaces.
+    const SCOPES = 'https://www.googleapis.com/auth/youtube.readonly';
+
+   const defaultChannel ='RDEMh8M-PWhyF7f95WSsPdIsQQ';
+
+    /**
+     *  On load, called to load the auth2 library and API client library.
+     */
+    function handleClientLoad() {
+      
+        gapi.load('client:auth2', initClient);
+      
+      
+    }
+
+    /**
+     *  Initializes the API client library and sets up sign-in state
+     *  listeners.
+     */
+    function initClient() {
+      gapi.client.init({
+        discoveryDocs: DISCOVERY_DOCS,
+        clientId: CLIENT_ID,
+        scope: SCOPES
+      }).then(function () {
+        // Listen for sign-in state changes.
+        gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+        // Handle the initial sign-in state.
+        updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+        authorizeButton.onclick = handleAuthClick;
+        signoutButton.onclick = handleSignoutClick;
+      });
+    }
+
+    /**
+     *  Called when the signed in status changes, to update the UI
+     *  appropriately. After a sign-in, the API is called.
+     */
+    // Update UI sign in state changes
+    function updateSigninStatus(isSignedIn) {
+      if (isSignedIn) {
+        authorizeButton.style.display = 'none';
+        signoutButton.style.display = 'block';
+        content.style.display = 'block';
+        videoContainer.style.display = 'block';
+        getChannel(defaultChannel);
+      } else {
+        authorizeButton.style.display = 'block';
+        signoutButton.style.display = 'none';
+        content.style.display = 'none';
+        videoContainer.style.display = 'none';
+      }
+    }
+
+    /**
+     *  Sign in the user upon button click.
+     */
+    function handleAuthClick(event) {
+      gapi.auth2.getAuthInstance().signIn();
+    }
+
+    /**
+     *  Sign out the user upon button click.
+     */
+    function handleSignoutClick(event) {
+      gapi.auth2.getAuthInstance().signOut();
+    }
+
+ 
+    // Display channel data
+    function showChannelData(data) {
+      //const channelData = document.getElementById('channel-data');
+      channelData.innerHTML = data;
+    }
+
+
+//channelId:"UC6fHRI-bn1lYM3yYzv5YsKQ"
+//channelTitle:"Cruz F"
+
+    function getChannel(channel) {
+      
+      var requestOptions = {
+            mine: true,
+            part: 'snippet,contentDetails,statistics',
+            maxResults: 25
+        };
+        
+        var request = gapi.client.youtube.channels.list(requestOptions);
+        
+        request.execute(response => {
+            // Loop through videos and append output
+            const channel = response.result.items[0];
+
+              const output = `
+                <ul class="collection">
+                  <li class="collection-item">Title: ${channel.snippet.title}</li>
+                  <li class="collection-item">ID: ${channel.id}</li>
+                  <li class="collection-item">Subscribers: ${channel.statistics.subscriberCount
+                  }</li>
+                  <li class="collection-item">Views: ${channel.statistics.viewCount
+                  }</li>
+                  <li class="collection-item">Videos: ${
+                    channel.statistics.videoCount
+                  }</li>
+                </ul>
+                <p>${channel.snippet.description}</p>
+                <hr>
+                <a class="btn grey darken-2" target="_blank" href="https://youtube.com/${
+                  channel.snippet.customUrl
+                }">Visit Channel</a>
+              `;
+              showChannelData(output);
+
+
+        });
+
+        
+        getPlayList(channel);
+       
+    }
+
+    // Get channel from API
+    function getPlayList(channel) {
+      
+      var requestOptions = {
+            mine: true,
+            part: 'snippet,contentDetails,status',
+            maxResults: 25
+        };
+        
+        var request = gapi.client.youtube.playlists.list(requestOptions);
+        
+        request.execute(response => {
+          const ListItemsVideos  = response.result.items
+            // Loop through videos and append output
+            let listoutput='<option value="0">Select One</option>';
+            ListItemsVideos.forEach(item => {
+
+              if(item.status.privacyStatus !="private")
+                listoutput += `
+                    <option value="${item.id}">${item.snippet.title}</option>
+                `;
+            });
+
+            // Output videos
+            sourceSelector.innerHTML = listoutput;
+            sourceSelector.addEventListener('change', evt => updateNews(evt.target.value));
+        
+
+        });
+
+        
+        requestVideoPlaylist(channel);
+       
+    }
+
+    function updateNews(source = defaultSource) {
+      if(source =="0") source = defaultChannel;
+      requestVideoPlaylist(source);
+    }
+
+    async function requestVideoPlaylist(playlistId) {
+      const requestOptions = {
+        playlistId: playlistId,
+        part: 'snippet',
+        maxResults: 20
+      };
+
+      const request = gapi.client.youtube.playlistItems.list(requestOptions);
+
+      await request.execute(response => {
+        console.log(response);
+        const playListItems = response.result.items;
+        if (playListItems) {
+          let output = '<br><h4 class="center-align">Latest Videos</h4>';
+
+          // Loop through videos and append output
+          playListItems.forEach(item => {
+            const videoId = item.snippet.resourceId.videoId;
+
+            output += `
+              <div class="col s3">
+              <iframe width="100%" height="auto" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+              </div>
+            `;
+          });
+
+          // Output videos
+            videoContainer.innerHTML = output;
+          } else {
+            videoContainer.innerHTML = 'No Uploaded Videos';
+          }
+        });
+      }
+
+  </script>
 </body>
 </html>
