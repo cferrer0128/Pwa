@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "cloud_build":"ng build --prod & firebase deploy --only hosting"
+    "cloud_build": "ng build --prod & firebase deploy --only hosting"
   },
   "private": true,
   "dependencies": {
@@ -25,9 +25,12 @@
     "@angular/pwa": "^0.6.8",
     "@angular/router": "^6.0.3",
     "@angular/service-worker": "^6.0.3",
+    "adm-zip": "^0.4.11",
     "core-js": "^2.5.4",
     "hoek": "^4.2.1",
+    "parsejson": "0.0.3",
     "rxjs": "^6.0.0",
+    "url-parse": "^1.4.3",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {
