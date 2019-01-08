@@ -141,17 +141,22 @@
       function launchPlayer(id) {
        
         upcoming.forEach(function(video, index){
-          if(video.id != videoId) {document.getElementById(videoId).style.display ='none';}
-          if(video.id == id) {videoIndex = index;}
+          
+          if(video){
+            if(video.id != videoId) {document.getElementById(videoId).style.display ='none';}
+            if(video.id == id) {videoIndex = index;}
+          }else {console.log('Error loading Id',id)}
+        
 
         });
-
-        youtube.player.loadVideoById(id);
-        document.getElementById(id).style.display ='';
-
-        videoId = id
-        youtube.videoId = id;      
-        return youtube;
+       
+          youtube.player.loadVideoById(id);
+          document.getElementById(id).style.display ='';
+          videoId = id
+          youtube.videoId = id;      
+          return youtube;
+     
+       
     }
 
     function bindPlayer (elementId) {
@@ -179,9 +184,13 @@
 
     function onYoutubeReady(event) {
         console.info('YouTube Player is ready');
-        videoId = upcoming[videoIndex].id;
-        launchPlayer(upcoming[videoIndex].id);
 
+        if(upcoming[videoIndex]){
+          videoId = upcoming[videoIndex].id;
+          launchPlayer(upcoming[videoIndex].id);
+
+        }else console.log('Error loading Id',upcoming[videoIndex])
+       
        
     }
 
@@ -199,18 +208,22 @@
             youtube.state = 'ended';
             videoFail = event.data;
             videoRepeat--;
-            videoIndex++; launchPlayer(upcoming[videoIndex].id);
+            videoIndex++; 
+            if(upcoming[videoIndex])launchPlayer(upcoming[videoIndex].id);
             
         } else if (event.data == YT.PlayerState.UNSTARTED && videoFail == 3) {
+          console.log("you tube failed move next ", youtube.state , event.data)
             videoFail = event.data;
             launchPlayer(upcoming[0].id);
           
         }
         
         if (event.data <0 && youtube.state == 'BUFFERING') {
+         
+            console.log("you tube failed move next ", upcoming[videoIndex])
+            videoIndex++; if(upcoming[videoIndex])launchPlayer(upcoming[videoIndex].id);
+          
            
-            console.log("you tube failed move next ", youtube.state , event.data)
-            videoIndex++; launchPlayer(upcoming[videoIndex].id);
  
         }
 
@@ -398,7 +411,7 @@
       requestVideoPlaylist(source);
     }
 
-    async function requestVideoPlaylist(playlistId) {
+    function requestVideoPlaylist(playlistId) {
       const requestOptions = {
         playlistId: playlistId,
         part: 'snippet',
@@ -407,7 +420,7 @@
 
       const request = gapi.client.youtube.playlistItems.list(requestOptions);
 
-      await request.execute(response => {
+      request.execute(response => {
         console.log('Ready  playlistItems call');
         const playListItems = response.result.items;
         if (playListItems) {
@@ -415,6 +428,8 @@
           loadPlayer();
           // Loop through videos and append output
           playListItems.forEach(item => {
+
+            try{
             const videoId = item.snippet.resourceId.videoId;
             const videoTitle = item.snippet.title;
             upcoming.push({
@@ -424,7 +439,7 @@
                         show: true,
                         repeat: [],
                         author: item.snippet.channelTitle
-                    });
+              });
            
             output += `
               <div class="col s3">
@@ -438,14 +453,14 @@
                 
               </div>
             `;
+            }
+            catch{console.log('Error loading the video...!',videoTitle)}
+
           });
 
           // Output videos
-          // <p id="${videoId}" style="display:none">Playing</p>
-          //<iframe width="100%" height="auto" src="https://www.youtube.com/embed/"  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-         
-            videoContainer.innerHTML = output;
-          } else {
+          videoContainer.innerHTML = output;
+          }else {
             videoContainer.innerHTML = 'No Uploaded Videos';
           }
         });

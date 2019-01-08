@@ -143,7 +143,7 @@ export class TasksComponent implements OnInit {
 
       this.dataSource = new MatTableDataSource<TaskElement>(this.tasks);
 
-      //this.arrRecords = new Promise<any>((resolve,reject) => { resolve(this.tasks)})
+      this.arrRecords = new Promise<any>((resolve,reject) => { resolve(this.tasks)})
 
       console.log('end time FOR LOOP ngOnInit ', Math.floor((Date.now() - myTime)/1000))
       
