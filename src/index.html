@@ -30,9 +30,9 @@
 <body>
   <!-- Compiled and minified JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
-   
-  <script async defer src="https://apis.google.com/js/api.js" 
-  onload="this.onload=function(){}; handleClientLoad()" 
+
+  <script async defer src="https://apis.google.com/js/api.js"
+  onload="this.onload=function(){}; handleClientLoad()"
   onreadystatechange="if (this.readyState === 'complete') this.onload()"></script>
 
   <nav class="blue">
@@ -52,16 +52,16 @@
       <div id="content">
         <div class="row">
             <app-root style="display: none"></app-root>
-          
+
             <div class="col s6">
-               
+
               <form id=channel-form>
-              
-             
+
+
               <div class="select-field">
-              
+
                   <select id="sourceSelector"></select>
-                
+
               </div>
             </form>
           </div>
@@ -80,14 +80,14 @@
       </div>
     </div>
   </section>
-  
+
   <noscript>
     <p>
       Sorry, Javascript must be enabled to use this app!!
     </p>
   </noscript>
 
-    
+
   <script type="text/javascript">
 
     //trying with UToo V Lib.
@@ -139,24 +139,24 @@
       };
 
       function launchPlayer(id) {
-       
+
         upcoming.forEach(function(video, index){
-          
+
           if(video){
             if(video.id != videoId) {document.getElementById(videoId).style.display ='none';}
             if(video.id == id) {videoIndex = index;}
           }else {console.log('Error loading Id',id)}
-        
+
 
         });
-       
+
           youtube.player.loadVideoById(id);
           document.getElementById(id).style.display ='';
           videoId = id
-          youtube.videoId = id;      
+          youtube.videoId = id;
           return youtube;
-     
-       
+
+
     }
 
     function bindPlayer (elementId) {
@@ -177,57 +177,48 @@
         console.info('Youtube API is ready');
         youtube.ready = true;
         bindPlayer('placeholder');
-    
-       
+
+
     };
 
 
     function onYoutubeReady(event) {
         console.info('YouTube Player is ready');
-
+        videoIndex = 0;
         if(upcoming[videoIndex]){
           videoId = upcoming[videoIndex].id;
           launchPlayer(upcoming[videoIndex].id);
 
         }else console.log('Error loading Id',upcoming[videoIndex])
-       
-       
+
+
     }
 
      function onYoutubeStateChange(event) {
         if (event.data == YT.PlayerState.PLAYING) {
-            youtube.state = 'playing'; 
-           
+            youtube.state = 'playing';
+
         } else if (event.data == YT.PlayerState.PAUSED) {
             youtube.state = 'paused';
             //document.getElementById(upcoming[videoIndex].id).style.display = 'none'
         } else if (event.data == YT.PlayerState.BUFFERING) {
-            youtube.state = 'BUFFERING'; 
-           
+            youtube.state = 'BUFFERING';
+
         } else if (event.data == YT.PlayerState.ENDED) {
             youtube.state = 'ended';
             videoFail = event.data;
             videoRepeat--;
-            videoIndex++; 
+            videoIndex++;
             if(upcoming[videoIndex])launchPlayer(upcoming[videoIndex].id);
-            
+
         } else if (event.data == YT.PlayerState.UNSTARTED && videoFail == 3) {
           console.log("you tube failed move next ", youtube.state , event.data)
             videoFail = event.data;
             launchPlayer(upcoming[0].id);
-          
-        }
-        
-        if (event.data <0 && youtube.state == 'BUFFERING') {
-         
-            console.log("you tube failed move next ", upcoming[videoIndex])
-            videoIndex++; if(upcoming[videoIndex])launchPlayer(upcoming[videoIndex].id);
-          
-           
- 
+
         }
 
-        
+
     }
 
     //end UToo
@@ -251,16 +242,16 @@
     // separated them with spaces.
     const SCOPES = 'https://www.googleapis.com/auth/youtube.readonly';
 
-   const defaultChannel ='RD9Ht5RZpzPqw';//'RDXrBet1Rv32k';
+   const defaultChannel ='PL9fOMtkIoJOec1oZHO_rV9CCzs72-PHw9';//'RD9Ht5RZpzPqw,RDXrBet1Rv32k';
 
     /**
      *  On load, called to load the auth2 library and API client library.
      */
     function handleClientLoad() {
-      
+
         gapi.load('client:auth2', initClient);
-      
-      
+
+
     }
 
     /**
@@ -317,7 +308,7 @@
       gapi.auth2.getAuthInstance().signOut();
     }
 
- 
+
     // Display channel data
     function showChannelData(data) {
       //const channelData = document.getElementById('channel-data');
@@ -329,16 +320,16 @@
 //channelTitle:"Cruz F"
 
     function getChannel(channel) {
-      
+
       var requestOptions = {
             mine: true,
             part: 'snippet,contentDetails,statistics',
             maxResults: 25
         };
-        
+
         var request = gapi.client.youtube.channels.list(requestOptions);
-        
-        request.execute(response => {
+
+        request.execute( function(response) {
             // Loop through videos and append output
             const channel = response.result.items[0];
 
@@ -365,22 +356,22 @@
 
         });
 
-        
+
         getPlayList(channel);
-       
+
     }
 
     // Get channel from API
     function getPlayList(channel) {
-      
+
       var requestOptions = {
             mine: true,
             part: 'snippet,contentDetails,status',
             maxResults: 25
         };
-        
+
         var request = gapi.client.youtube.playlists.list(requestOptions);
-        
+
         request.execute(response => {
           const ListItemsVideos  = response.result.items
             // Loop through videos and append output
@@ -396,13 +387,13 @@
             // Output videos
             sourceSelector.innerHTML = listoutput;
             sourceSelector.addEventListener('change', evt => updateNews(evt.target.value));
-        
+
 
         });
 
-        
+
         requestVideoPlaylist(channel);
-       
+
     }
 
     function updateNews(source = defaultSource) {
@@ -429,7 +420,7 @@
           // Loop through videos and append output
           playListItems.forEach(item => {
 
-            try{
+
             const videoId = item.snippet.resourceId.videoId;
             const videoTitle = item.snippet.title;
             upcoming.push({
@@ -440,21 +431,21 @@
                         repeat: [],
                         author: item.snippet.channelTitle
               });
-           
+
             output += `
               <div class="col s3">
-               
+
                <a href='javascript:' onclick="launchPlayer('${videoId}')">
-               
+
                   <img src=https://i.ytimg.com/vi/${videoId}/hqdefault.jpg width=120 height=90 style="border-radius: 8px;"/>
                   <span id="${videoId}" class="waves-effect waves-light btn alink" style="display:none;">Playing</span>
                 </a>
-               
-                
+
+
               </div>
             `;
-            }
-            catch{console.log('Error loading the video...!',videoTitle)}
+
+
 
           });
 
@@ -467,6 +458,6 @@
       }
 
   </script>
-  
+
 </body>
 </html>

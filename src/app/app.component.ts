@@ -26,10 +26,6 @@ const channelData = document.getElementById('channel-data');
 export class AppComponent {
   title = 'AppComponent';
 
-  
-  handleClientLoad() {
-    gapi.load('client:auth2', this.initClient);
-  }
 
 
    initClient() {
